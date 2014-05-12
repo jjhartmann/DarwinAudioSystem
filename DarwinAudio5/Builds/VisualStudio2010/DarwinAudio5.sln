@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{B712A5E6-A8CF-C9B5-D376-AF0B21F4C2CF}") = "DarwinAudio5", "DarwinAudio5.vcxproj", "{D48F6657-6FE0-4680-0FBE-D16B28BFCD5D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D48F6657-6FE0-4680-0FBE-D16B28BFCD5D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D48F6657-6FE0-4680-0FBE-D16B28BFCD5D}.Debug|Win32.Build.0 = Debug|Win32
+		{D48F6657-6FE0-4680-0FBE-D16B28BFCD5D}.Release|Win32.ActiveCfg = Release|Win32
+		{D48F6657-6FE0-4680-0FBE-D16B28BFCD5D}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
