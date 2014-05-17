@@ -69,15 +69,13 @@ public:
         if (newState.width  <= 0) newState.width  = 100;
         if (newState.height <= 0) newState.height = 100;
 
-        Point<float> viewboxXY;
-
         if (xml->hasAttribute ("viewBox"))
         {
             const String viewBoxAtt (xml->getStringAttribute ("viewBox"));
             String::CharPointerType viewParams (viewBoxAtt.getCharPointer());
-            Point<float> vwh;
+            Point<float> vxy, vwh;
 
-            if (parseCoords (viewParams, viewboxXY, true)
+            if (parseCoords (viewParams, vxy, true)
                  && parseCoords (viewParams, vwh, true)
                  && vwh.x > 0
                  && vwh.y > 0)
@@ -107,7 +105,7 @@ public:
                 }
 
                 newState.transform = RectanglePlacement (placementFlags)
-                                        .getTransformToFit (Rectangle<float> (viewboxXY.x, viewboxXY.y, vwh.x, vwh.y),
+                                        .getTransformToFit (Rectangle<float> (vxy.x, vxy.y, vwh.x, vwh.y),
                                                             Rectangle<float> (newState.width, newState.height))
                                         .followedBy (newState.transform);
             }
@@ -120,10 +118,7 @@ public:
 
         newState.parseSubElements (xml, *drawable);
 
-        drawable->setContentArea (RelativeRectangle (RelativeCoordinate (viewboxXY.x),
-                                                     RelativeCoordinate (viewboxXY.x + newState.viewBoxW),
-                                                     RelativeCoordinate (viewboxXY.y),
-                                                     RelativeCoordinate (viewboxXY.y + newState.viewBoxH)));
+        drawable->setContentArea (RelativeRectangle (Rectangle<float> (newState.viewBoxW, newState.viewBoxH)));
         drawable->resetBoundingBoxToContentArea();
 
         return drawable;

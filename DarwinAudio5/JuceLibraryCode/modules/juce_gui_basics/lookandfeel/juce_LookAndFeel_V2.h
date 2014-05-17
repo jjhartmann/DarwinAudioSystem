@@ -46,7 +46,6 @@ public:
 
     void drawButtonText (Graphics&, TextButton& button,
                          bool isMouseOverButton, bool isButtonDown) override;
-    void changeTextButtonWidthToFitText (TextButton&, int newHeight) override;
 
     void drawToggleButton (Graphics&, ToggleButton& button, bool isMouseOverButton, bool isButtonDown) override;
 

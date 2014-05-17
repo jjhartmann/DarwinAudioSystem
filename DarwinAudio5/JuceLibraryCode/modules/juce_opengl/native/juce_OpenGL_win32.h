@@ -31,8 +31,7 @@ public:
     NativeContext (Component& component,
                    const OpenGLPixelFormat& pixelFormat,
                    void* contextToShareWith,
-                   bool /*useMultisampling*/,
-                   OpenGLVersion)
+                   bool /*useMultisampling*/)
     {
         createNativeWindow (component);
 

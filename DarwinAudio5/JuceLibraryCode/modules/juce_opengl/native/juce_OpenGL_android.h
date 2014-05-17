@@ -38,8 +38,7 @@ public:
     NativeContext (Component& comp,
                    const OpenGLPixelFormat& pixelFormat,
                    void* /*contextToShareWith*/,
-                   bool /*useMultisampling*/,
-                   OpenGLVersion)
+                   bool /*useMultisampling*/)
         : component (comp),
           isInsideGLCallback (false)
     {

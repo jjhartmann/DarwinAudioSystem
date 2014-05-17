@@ -23,7 +23,9 @@
 */
 
 MixerAudioSource::MixerAudioSource()
-   : currentSampleRate (0.0), bufferSizeExpected (0)
+    : tempBuffer (2, 0),
+      currentSampleRate (0.0),
+      bufferSizeExpected (0)
 {
 }
 

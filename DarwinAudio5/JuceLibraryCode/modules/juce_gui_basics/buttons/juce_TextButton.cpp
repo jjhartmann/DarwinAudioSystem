@@ -22,10 +22,6 @@
   ==============================================================================
 */
 
-TextButton::TextButton()  : Button (String())
-{
-}
-
 TextButton::TextButton (const String& name, const String& toolTip)
     : Button (name)
 {
@@ -36,15 +32,21 @@ TextButton::~TextButton()
 {
 }
 
-void TextButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
+void TextButton::paintButton (Graphics& g,
+                              bool isMouseOverButton,
+                              bool isButtonDown)
 {
     LookAndFeel& lf = getLookAndFeel();
 
     lf.drawButtonBackground (g, *this,
-                             findColour (getToggleState() ? buttonOnColourId : buttonColourId),
-                             isMouseOverButton, isButtonDown);
+                             findColour (getToggleState() ? buttonOnColourId
+                                                          : buttonColourId),
+                             isMouseOverButton,
+                             isButtonDown);
 
-    lf.drawButtonText (g, *this, isMouseOverButton, isButtonDown);
+    lf.drawButtonText (g, *this,
+                       isMouseOverButton,
+                       isButtonDown);
 }
 
 void TextButton::colourChanged()
@@ -59,5 +61,9 @@ Font TextButton::getFont()
 
 void TextButton::changeWidthToFitText (const int newHeight)
 {
-    getLookAndFeel().changeTextButtonWidthToFitText (*this, newHeight);
+    if (newHeight >= 0)
+        setSize (jmax (1, getWidth()), newHeight);
+
+    setSize (getFont().getStringWidth (getButtonText()) + getHeight(),
+             getHeight());
 }

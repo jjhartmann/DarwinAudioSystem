@@ -25,7 +25,8 @@
 ChannelRemappingAudioSource::ChannelRemappingAudioSource (AudioSource* const source_,
                                                           const bool deleteSourceWhenDeleted)
    : source (source_, deleteSourceWhenDeleted),
-     requiredNumberOfChannels (2)
+     requiredNumberOfChannels (2),
+     buffer (2, 16)
 {
     remappedInfo.buffer = &buffer;
     remappedInfo.startSample = 0;

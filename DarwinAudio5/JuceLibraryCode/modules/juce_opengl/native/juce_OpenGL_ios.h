@@ -46,10 +46,9 @@ public:
     NativeContext (Component& component,
                    const OpenGLPixelFormat& pixFormat,
                    void* contextToShare,
-                   bool multisampling,
-                   OpenGLVersion version)
-        : context (nil), frameBufferHandle (0), colorBufferHandle (0),
-          depthBufferHandle (0), msaaColorHandle (0), msaaBufferHandle (0),
+                   bool multisampling)
+        : frameBufferHandle (0), colorBufferHandle (0), depthBufferHandle (0),
+          msaaColorHandle (0), msaaBufferHandle (0),
           lastWidth (0), lastHeight (0), needToRebuildBuffers (false),
           swapFrames (0), useDepthBuffer (pixFormat.depthBufferBits > 0),
           useMSAA (multisampling)
@@ -75,22 +74,14 @@ public:
 
             [((UIView*) peer->getNativeHandle()) addSubview: view];
 
-           #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_7_0
-            if (version == OpenGLContext::openGL3_2 && [[UIDevice currentDevice].systemVersion floatValue] >= 7.0)
-            {
-                if (! createContext (kEAGLRenderingAPIOpenGLES3, contextToShare))
-                {
-                    releaseContext();
-                    createContext (kEAGLRenderingAPIOpenGLES2, contextToShare);
-                }
-            }
-            else
-           #endif
-            {
-                createContext (kEAGLRenderingAPIOpenGLES2, contextToShare);
-            }
+            context = [EAGLContext alloc];
 
-            jassert (context != nil);
+            const NSUInteger type = kEAGLRenderingAPIOpenGLES2;
+
+            if (contextToShare != nullptr)
+                [context initWithAPI: type  sharegroup: [(EAGLContext*) contextToShare sharegroup]];
+            else
+                [context initWithAPI: type];
 
             // I'd prefer to put this stuff in the initialiseOnRenderThread() call, but doing
             // so causes myserious timing-related failures.
@@ -102,7 +93,9 @@ public:
 
     ~NativeContext()
     {
-        releaseContext();
+        [context release];
+        context = nil;
+
         [view removeFromSuperview];
         [view release];
     }
@@ -188,24 +181,6 @@ private:
     bool volatile needToRebuildBuffers;
     int swapFrames;
     bool useDepthBuffer, useMSAA;
-
-    bool createContext (NSUInteger type, void* contextToShare)
-    {
-        jassert (context == nil);
-        context = [EAGLContext alloc];
-
-        context = contextToShare != nullptr
-                    ? [context initWithAPI: type  sharegroup: [(EAGLContext*) contextToShare sharegroup]]
-                    : [context initWithAPI: type];
-
-        return context != nil;
-    }
-
-    void releaseContext()
-    {
-        [context release];
-        context = nil;
-    }
 
     //==============================================================================
     void createGLBuffers()

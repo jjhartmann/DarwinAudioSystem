@@ -54,17 +54,29 @@ void OpenGLShaderProgram::release() noexcept
 
 double OpenGLShaderProgram::getLanguageVersion()
 {
-    return String::fromUTF8 ((const char*) glGetString (GL_SHADING_LANGUAGE_VERSION))
-            .retainCharacters("1234567890.").getDoubleValue();
+   #if JUCE_OPENGL_ES
+    // GLES doesn't support this version number, but that shouldn't matter since
+    // on GLES you probably won't need to check it.
+    jassertfalse;
+    return 0;
+   #else
+    return String ((const char*) glGetString (GL_SHADING_LANGUAGE_VERSION))
+            .upToFirstOccurrenceOf (" ", false, false).getDoubleValue();
+   #endif
 }
 
-bool OpenGLShaderProgram::addShader (const String& code, GLenum type)
+bool OpenGLShaderProgram::addShader (StringRef code, GLenum type)
 {
     GLuint shaderID = context.extensions.glCreateShader (type);
 
-    const GLchar* c = code.toRawUTF8();
-    context.extensions.glShaderSource (shaderID, 1, &c, nullptr);
+   #if JUCE_STRING_UTF_TYPE == 8
+    const GLchar* c = code.text;
+   #else
+    String codeString (code.text);
+    const GLchar* c = codeString.toRawUTF8();
+   #endif
 
+    context.extensions.glShaderSource (shaderID, 1, &c, nullptr);
     context.extensions.glCompileShader (shaderID);
 
     GLint status = GL_FALSE;
@@ -93,8 +105,8 @@ bool OpenGLShaderProgram::addShader (const String& code, GLenum type)
     return true;
 }
 
-bool OpenGLShaderProgram::addVertexShader (const String& code)    { return addShader (code, GL_VERTEX_SHADER); }
-bool OpenGLShaderProgram::addFragmentShader (const String& code)  { return addShader (code, GL_FRAGMENT_SHADER); }
+bool OpenGLShaderProgram::addVertexShader (StringRef code)    { return addShader (code, GL_VERTEX_SHADER); }
+bool OpenGLShaderProgram::addFragmentShader (StringRef code)  { return addShader (code, GL_FRAGMENT_SHADER); }
 
 bool OpenGLShaderProgram::link() noexcept
 {

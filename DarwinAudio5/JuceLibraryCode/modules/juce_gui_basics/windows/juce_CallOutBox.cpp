@@ -23,7 +23,7 @@
 */
 
 CallOutBox::CallOutBox (Component& c, const Rectangle<int>& area, Component* const parent)
-    : arrowSize (16.0f), content (c)
+    : borderSpace (20), arrowSize (16.0f), content (c)
 {
     addAndMakeVisible (content);
 
@@ -86,12 +86,8 @@ CallOutBox& CallOutBox::launchAsynchronously (Component* content, const Rectangl
 void CallOutBox::setArrowSize (const float newSize)
 {
     arrowSize = newSize;
+    borderSpace = jmax (20, (int) arrowSize);
     refreshPath();
-}
-
-int CallOutBox::getBorderSize() const noexcept
-{
-    return jmax (20, (int) arrowSize);
 }
 
 void CallOutBox::paint (Graphics& g)
@@ -101,7 +97,6 @@ void CallOutBox::paint (Graphics& g)
 
 void CallOutBox::resized()
 {
-    const int borderSpace = getBorderSize();
     content.setTopLeftPosition (borderSpace, borderSpace);
     refreshPath();
 }
@@ -172,8 +167,6 @@ void CallOutBox::updatePosition (const Rectangle<int>& newAreaToPointTo, const R
 {
     targetArea = newAreaToPointTo;
     availableArea = newAreaToFitIn;
-
-    const int borderSpace = getBorderSize();
 
     Rectangle<int> newBounds (content.getWidth()  + borderSpace * 2,
                               content.getHeight() + borderSpace * 2);

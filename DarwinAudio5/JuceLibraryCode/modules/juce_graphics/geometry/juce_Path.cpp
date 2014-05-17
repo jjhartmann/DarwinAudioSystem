@@ -254,11 +254,6 @@ Rectangle<float> Path::getBoundsTransformed (const AffineTransform& transform) c
 }
 
 //==============================================================================
-void Path::preallocateSpace (int numExtraCoordsToMakeSpaceFor)
-{
-    data.ensureAllocatedSize ((int) numElements + numExtraCoordsToMakeSpaceFor);
-}
-
 void Path::startNewSubPath (const float x, const float y)
 {
     JUCE_CHECK_COORDS_ARE_VALID (x, y);
@@ -268,7 +263,7 @@ void Path::startNewSubPath (const float x, const float y)
     else
         bounds.extend (x, y);
 
-    preallocateSpace (3);
+    data.ensureAllocatedSize ((int) numElements + 3);
 
     data.elements [numElements++] = moveMarker;
     data.elements [numElements++] = x;
@@ -287,7 +282,7 @@ void Path::lineTo (const float x, const float y)
     if (numElements == 0)
         startNewSubPath (0, 0);
 
-    preallocateSpace (3);
+    data.ensureAllocatedSize ((int) numElements + 3);
 
     data.elements [numElements++] = lineMarker;
     data.elements [numElements++] = x;
@@ -310,7 +305,7 @@ void Path::quadraticTo (const float x1, const float y1,
     if (numElements == 0)
         startNewSubPath (0, 0);
 
-    preallocateSpace (5);
+    data.ensureAllocatedSize ((int) numElements + 5);
 
     data.elements [numElements++] = quadMarker;
     data.elements [numElements++] = x1;
@@ -339,7 +334,7 @@ void Path::cubicTo (const float x1, const float y1,
     if (numElements == 0)
         startNewSubPath (0, 0);
 
-    preallocateSpace (7);
+    data.ensureAllocatedSize ((int) numElements + 7);
 
     data.elements [numElements++] = cubicMarker;
     data.elements [numElements++] = x1;
@@ -367,7 +362,7 @@ void Path::closeSubPath()
     if (numElements > 0
          && data.elements [numElements - 1] != closeSubPathMarker)
     {
-        preallocateSpace (1);
+        data.ensureAllocatedSize ((int) numElements + 1);
         data.elements [numElements++] = closeSubPathMarker;
     }
 }
@@ -404,7 +399,7 @@ void Path::addRectangle (const float x, const float y,
     if (w < 0) std::swap (x1, x2);
     if (h < 0) std::swap (y1, y2);
 
-    preallocateSpace (13);
+    data.ensureAllocatedSize ((int) numElements + 13);
 
     if (numElements == 0)
     {

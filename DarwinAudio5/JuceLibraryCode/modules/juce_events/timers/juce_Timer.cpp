@@ -295,12 +295,20 @@ Timer::TimerThread* Timer::TimerThread::instance = nullptr;
 Timer::TimerThread::LockType Timer::TimerThread::lock;
 
 //==============================================================================
+#if JUCE_DEBUG
+static SortedSet <Timer*> activeTimers;
+#endif
+
 Timer::Timer() noexcept
    : countdownMs (0),
      periodMs (0),
      previous (nullptr),
      next (nullptr)
 {
+   #if JUCE_DEBUG
+    const TimerThread::LockType::ScopedLockType sl (TimerThread::lock);
+    activeTimers.add (this);
+   #endif
 }
 
 Timer::Timer (const Timer&) noexcept
@@ -309,16 +317,29 @@ Timer::Timer (const Timer&) noexcept
      previous (nullptr),
      next (nullptr)
 {
+   #if JUCE_DEBUG
+    const TimerThread::LockType::ScopedLockType sl (TimerThread::lock);
+    activeTimers.add (this);
+   #endif
 }
 
 Timer::~Timer()
 {
     stopTimer();
+
+   #if JUCE_DEBUG
+    activeTimers.removeValue (this);
+   #endif
 }
 
 void Timer::startTimer (const int interval) noexcept
 {
     const TimerThread::LockType::ScopedLockType sl (TimerThread::lock);
+
+   #if JUCE_DEBUG
+    // this isn't a valid object! Your timer might be a dangling pointer or something..
+    jassert (activeTimers.contains (this));
+   #endif
 
     if (periodMs == 0)
     {
@@ -335,6 +356,11 @@ void Timer::startTimer (const int interval) noexcept
 void Timer::stopTimer() noexcept
 {
     const TimerThread::LockType::ScopedLockType sl (TimerThread::lock);
+
+   #if JUCE_DEBUG
+    // this isn't a valid object! Your timer might be a dangling pointer or something..
+    jassert (activeTimers.contains (this));
+   #endif
 
     if (periodMs > 0)
     {

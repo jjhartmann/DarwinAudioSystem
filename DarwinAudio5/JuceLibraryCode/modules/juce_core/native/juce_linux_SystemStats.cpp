@@ -42,6 +42,11 @@ String SystemStats::getOperatingSystemName()
     return "Linux";
 }
 
+String SystemStats::getDeviceDescription()
+{
+    return String();
+}
+
 bool SystemStats::isOperatingSystem64Bit()
 {
    #if JUCE_64BIT
@@ -61,26 +66,16 @@ namespace LinuxStatsHelpers
         File ("/proc/cpuinfo").readLines (lines);
 
         for (int i = lines.size(); --i >= 0;) // (NB - it's important that this runs in reverse order)
-            if (lines[i].upToFirstOccurrenceOf (":", false, false).trim().equalsIgnoreCase (key))
+            if (lines[i].startsWithIgnoreCase (key))
                 return lines[i].fromFirstOccurrenceOf (":", false, false).trim();
 
         return String();
     }
 }
 
-String SystemStats::getDeviceDescription()
-{
-    return LinuxStatsHelpers::getCpuInfo ("Hardware");
-}
-
 String SystemStats::getCpuVendor()
 {
-    String v (LinuxStatsHelpers::getCpuInfo ("vendor_id"));
-
-    if (v.isEmpty())
-        v = LinuxStatsHelpers::getCpuInfo ("model name");
-
-    return v;
+    return LinuxStatsHelpers::getCpuInfo ("vendor_id");
 }
 
 int SystemStats::getCpuSpeedInMegaherz()

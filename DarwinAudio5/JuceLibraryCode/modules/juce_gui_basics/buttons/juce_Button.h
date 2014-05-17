@@ -360,12 +360,10 @@ public:
     {
         virtual ~LookAndFeelMethods() {}
 
-        virtual void drawButtonBackground (Graphics&, Button&, const Colour& backgroundColour,
+        virtual void drawButtonBackground (Graphics&, Button& button, const Colour& backgroundColour,
                                            bool isMouseOverButton, bool isButtonDown) = 0;
 
-        virtual Font getTextButtonFont (TextButton&) = 0;
-
-        virtual void changeTextButtonWidthToFitText (TextButton&, int newHeight) = 0;
+        virtual Font getTextButtonFont (TextButton& button) = 0;
 
         /** Draws the text for a TextButton. */
         virtual void drawButtonText (Graphics&, TextButton&, bool isMouseOverButton, bool isButtonDown) = 0;

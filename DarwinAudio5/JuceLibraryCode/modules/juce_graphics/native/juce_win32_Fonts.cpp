@@ -120,8 +120,7 @@ namespace TTFNameExtractor
 
         for (int i = 0; i < (int) ByteOrder::swapIfLittleEndian (offsetTable.numTables); ++i)
         {
-            TableDirectory tableDirectory;
-            zerostruct (tableDirectory);
+            TableDirectory tableDirectory = { 0 };
             input.read (&tableDirectory, sizeof (tableDirectory));
 
             if (String (tableDirectory.tag, sizeof (tableDirectory.tag)).equalsIgnoreCase ("name"))

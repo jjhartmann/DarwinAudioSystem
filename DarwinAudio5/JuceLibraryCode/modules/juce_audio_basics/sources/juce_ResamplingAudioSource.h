@@ -81,8 +81,7 @@ private:
     double coefficients[6];
     SpinLock ratioLock;
     const int numChannels;
-    HeapBlock<float*> destBuffers;
-    HeapBlock<const float*> srcBuffers;
+    HeapBlock<float*> destBuffers, srcBuffers;
 
     void setFilterCoefficients (double c1, double c2, double c3, double c4, double c5, double c6);
     void createLowPass (double proportionalRate);

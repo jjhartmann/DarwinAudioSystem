@@ -106,6 +106,7 @@ class OggReader : public AudioFormatReader
 public:
     OggReader (InputStream* const inp)
         : AudioFormatReader (inp, oggFormatName),
+          reservoir (2, 4096),
           reservoirStart (0),
           samplesInReservoir (0)
     {
@@ -139,7 +140,8 @@ public:
             bitsPerSample = 16;
             sampleRate = info->rate;
 
-            reservoir.setSize ((int) numChannels, (int) jmin (lengthInSamples, (int64) 4096));
+            reservoir.setSize ((int) numChannels,
+                               (int) jmin (lengthInSamples, (int64) reservoir.getNumSamples()));
         }
     }
 
@@ -171,7 +173,7 @@ public:
                 for (int i = jmin (numDestChannels, reservoir.getNumChannels()); --i >= 0;)
                     if (destSamples[i] != nullptr)
                         memcpy (destSamples[i] + startOffsetInDestBuffer,
-                                reservoir.getReadPointer (i, (int) (startSampleInFile - reservoirStart)),
+                                reservoir.getSampleData (i, (int) (startSampleInFile - reservoirStart)),
                                 sizeof (float) * (size_t) numToUse);
 
                 startSampleInFile += numToUse;
@@ -208,7 +210,11 @@ public:
                     jassert (samps <= numToRead);
 
                     for (int i = jmin ((int) numChannels, reservoir.getNumChannels()); --i >= 0;)
-                        memcpy (reservoir.getWritePointer (i, offset), dataIn[i], sizeof (float) * (size_t) samps);
+                    {
+                        memcpy (reservoir.getSampleData (i, offset),
+                                dataIn[i],
+                                sizeof (float) * (size_t) samps);
+                    }
 
                     numToRead -= samps;
                     offset += samps;

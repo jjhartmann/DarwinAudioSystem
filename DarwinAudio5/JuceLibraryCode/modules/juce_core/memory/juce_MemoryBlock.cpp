@@ -127,7 +127,8 @@ void MemoryBlock::setSize (const size_t newSize, const bool initialiseToZero)
     {
         if (newSize <= 0)
         {
-            reset();
+            data.free();
+            size = 0;
         }
         else
         {
@@ -146,12 +147,6 @@ void MemoryBlock::setSize (const size_t newSize, const bool initialiseToZero)
             size = newSize;
         }
     }
-}
-
-void MemoryBlock::reset()
-{
-    data.free();
-    size = 0;
 }
 
 void MemoryBlock::ensureSize (const size_t minimumSize, const bool initialiseToZero)

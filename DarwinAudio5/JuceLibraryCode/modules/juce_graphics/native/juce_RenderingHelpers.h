@@ -164,16 +164,53 @@ public:
     //==============================================================================
     void drawGlyph (RenderTargetType& target, const Font& font, const int glyphNumber, Point<float> pos)
     {
-        if (ReferenceCountedObjectPtr<CachedGlyphType> glyph = findOrCreateGlyph (font, glyphNumber))
+        ++accessCounter;
+        CachedGlyphType* glyph = nullptr;
+
+        const ScopedReadLock srl (lock);
+
+        for (int i = glyphs.size(); --i >= 0;)
         {
-            glyph->lastAccessCount = ++accessCounter;
-            glyph->draw (target, pos);
+            CachedGlyphType* const g = glyphs.getUnchecked (i);
+
+            if (g->glyph == glyphNumber && g->font == font)
+            {
+                glyph = g;
+                ++hits;
+                break;
+            }
         }
+
+        if (glyph == nullptr)
+        {
+            ++misses;
+            const ScopedWriteLock swl (lock);
+
+            if (hits.value + misses.value > glyphs.size() * 16)
+            {
+                if (misses.value * 2 > hits.value)
+                    addNewGlyphSlots (32);
+
+                hits.set (0);
+                misses.set (0);
+                glyph = glyphs.getLast();
+            }
+            else
+            {
+                glyph = findLeastRecentlyUsedGlyph();
+            }
+
+            jassert (glyph != nullptr);
+            glyph->generate (font, glyphNumber);
+        }
+
+        glyph->lastAccessCount = accessCounter.value;
+        glyph->draw (target, pos);
     }
 
     void reset()
     {
-        const ScopedLock sl (lock);
+        const ScopedWriteLock swl (lock);
         glyphs.clear();
         addNewGlyphSlots (120);
         hits.set (0);
@@ -182,54 +219,9 @@ public:
 
 private:
     friend struct ContainerDeletePolicy<CachedGlyphType>;
-    ReferenceCountedArray<CachedGlyphType> glyphs;
+    OwnedArray<CachedGlyphType> glyphs;
     Atomic<int> accessCounter, hits, misses;
-    CriticalSection lock;
-
-    ReferenceCountedObjectPtr<CachedGlyphType> findOrCreateGlyph (const Font& font, int glyphNumber)
-    {
-        const ScopedLock sl (lock);
-
-        if (CachedGlyphType* g = findExistingGlyph (font, glyphNumber))
-        {
-            ++hits;
-            return g;
-        }
-
-        ++misses;
-        CachedGlyphType* g = getGlyphForReuse();
-        jassert (g != nullptr);
-        g->generate (font, glyphNumber);
-        return g;
-    }
-
-    CachedGlyphType* findExistingGlyph (const Font& font, int glyphNumber) const
-    {
-        for (int i = 0; i < glyphs.size(); ++i)
-        {
-            CachedGlyphType* const g = glyphs.getUnchecked (i);
-
-            if (g->glyph == glyphNumber && g->font == font)
-                return g;
-        }
-
-        return nullptr;
-    }
-
-    CachedGlyphType* getGlyphForReuse()
-    {
-        if (hits.value + misses.value > glyphs.size() * 16)
-        {
-            if (misses.value * 2 > hits.value)
-                addNewGlyphSlots (32);
-
-            hits.set (0);
-            misses.set (0);
-            return glyphs.getLast();
-        }
-
-        return findLeastRecentlyUsedGlyph();
-    }
+    ReadWriteLock lock;
 
     void addNewGlyphSlots (int num)
     {
@@ -248,8 +240,7 @@ private:
         {
             CachedGlyphType* const glyph = glyphs.getUnchecked(i);
 
-            if (glyph->lastAccessCount <= oldestCounter
-                 && glyph->getReferenceCount() == 1)
+            if (glyph->lastAccessCount <= oldestCounter)
             {
                 oldestCounter = glyph->lastAccessCount;
                 oldest = glyph;
@@ -271,7 +262,7 @@ private:
 //==============================================================================
 /** Caches a glyph as an edge-table. */
 template <class RendererType>
-class CachedGlyphEdgeTable  : public ReferenceCountedObject
+class CachedGlyphEdgeTable
 {
 public:
     CachedGlyphEdgeTable() : glyph (0), lastAccessCount (0) {}

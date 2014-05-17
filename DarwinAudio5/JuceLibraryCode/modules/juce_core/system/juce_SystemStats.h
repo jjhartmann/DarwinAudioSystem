@@ -58,7 +58,6 @@ public:
         MacOSX_10_6 = 0x1006,
         MacOSX_10_7 = 0x1007,
         MacOSX_10_8 = 0x1008,
-        MacOSX_10_9 = 0x1009,
 
         Win2000     = 0x4105,
         WinXP       = 0x4106,

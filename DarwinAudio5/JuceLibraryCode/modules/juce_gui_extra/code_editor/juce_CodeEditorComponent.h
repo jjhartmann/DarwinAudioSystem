@@ -134,9 +134,9 @@ public:
     bool deleteBackwards (bool moveInWholeWordSteps);
     bool deleteForwards (bool moveInWholeWordSteps);
     bool deleteWhitespaceBackwardsToTabStop();
-    virtual bool copyToClipboard();
-    virtual bool cutToClipboard();
-    virtual bool pasteFromClipboard();
+    bool copyToClipboard();
+    bool cutToClipboard();
+    bool pasteFromClipboard();
     bool undo();
     bool redo();
 

@@ -143,8 +143,6 @@ private:
 
     mutable Array <ThreadRecursionCount> readerThreads;
 
-    bool tryEnterWriteInternal (Thread::ThreadID) const noexcept;
-
     JUCE_DECLARE_NON_COPYABLE (ReadWriteLock)
 };
 
