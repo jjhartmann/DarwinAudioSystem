@@ -80,7 +80,7 @@ public:
 
     Array<double> getAvailableSampleRates() override
     {
-        static const double rates[]       = { 8000.0, 16000.0, 32000.0, 44100.0, 48000.0 };
+        static const double rates[] = { 8000.0, 16000.0, 32000.0, 44100.0, 48000.0 };
         return Array<double> (rates, numElementsInArray (rates));
     }
 
@@ -179,10 +179,8 @@ public:
 
             if (callback != nullptr)
             {
-                callback->audioDeviceIOCallback (numInputChannels > 0 ? (const float**) inputBuffer.getArrayOfChannels() : nullptr,
-                                                 numInputChannels,
-                                                 numOutputChannels > 0 ? outputBuffer.getArrayOfChannels() : nullptr,
-                                                 numOutputChannels,
+                callback->audioDeviceIOCallback (numInputChannels  > 0 ? inputBuffer.getArrayOfReadPointers()   : nullptr, numInputChannels,
+                                                 numOutputChannels > 0 ? outputBuffer.getArrayOfWritePointers() : nullptr, numOutputChannels,
                                                  actualBufferSize);
             }
             else
@@ -404,7 +402,7 @@ private:
                     typedef AudioData::Pointer <AudioData::Float32, AudioData::NativeEndian, AudioData::NonInterleaved, AudioData::Const> SrcSampleType;
 
                     DstSampleType dstData (destBuffer + i, bufferList.numChannels);
-                    SrcSampleType srcData (buffer.getSampleData (i, offset));
+                    SrcSampleType srcData (buffer.getReadPointer (i, offset));
                     dstData.convertSamples (srcData, bufferList.numSamples);
                 }
 
@@ -522,7 +520,7 @@ private:
                     typedef AudioData::Pointer <AudioData::Float32, AudioData::NativeEndian, AudioData::NonInterleaved, AudioData::NonConst> DstSampleType;
                     typedef AudioData::Pointer <AudioData::Int16,   AudioData::LittleEndian, AudioData::Interleaved, AudioData::Const> SrcSampleType;
 
-                    DstSampleType dstData (buffer.getSampleData (i, offset));
+                    DstSampleType dstData (buffer.getWritePointer (i, offset));
                     SrcSampleType srcData (srcBuffer + i, bufferList.numChannels);
                     dstData.convertSamples (srcData, bufferList.numSamples);
                 }

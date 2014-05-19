@@ -40,6 +40,8 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 	AudioFormatReader *readerA = formatManager.createReaderFor(fileA);
 	bufferA = new AudioSampleBuffer(readerA->numChannels, readerA->lengthInSamples);
 	readerA->read(bufferA, 0, readerA->lengthInSamples, 0, true, true);
+    
+  
 
 	if (dataA != nullptr){
 		dataA = nullptr;

@@ -247,7 +247,7 @@ GUIComponent::~GUIComponent()
 	playAudioA = nullptr;
 	playAudioB = nullptr;
 	playAudioConvolve = nullptr;
-
+    FFTConvolve = nullptr;
     //[/Destructor]
 }
 
@@ -448,7 +448,16 @@ void GUIComponent::buttonClicked (Button* buttonThatWasClicked)
 			//Write to disk
 			//Warning!! - This is an absolute path to where I store the audio on the harddirve
 			// THis might not work or create unexpected reuslts when running this algorithm
-			File f("C:\\Users\\Jeremy Hartmann\\Dropbox\\SFU FILES - ALL\\CMPT 365\\TERM PROJECT\\__JUCE Final Good\\DarwinAudio5\\Resource\\filename.wav");
+			//Directory
+            File d;
+            d.getSpecialLocation(File::commonApplicationDataDirectory);
+            std::cout << " Thei is the dir:  " << d.getFullPathName() << std::endl;
+
+            //Fix for relative path
+            File e(d.getFullPathName() + "/Darwin/");
+            std::cout << e.getFullPathName() << std::endl;
+            jassert(e.createDirectory());
+            File f(e.getFullPathName() + "/temp.wav");
 			f.deleteFile();
 			FileOutputStream* outputTo = f.createOutputStream();
 			WavAudioFormat* format = new WavAudioFormat();

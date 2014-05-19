@@ -23,15 +23,17 @@ MainWindow::MainWindow()
 		// Create an instance of our main content component, and add it 
 		// to our window.
 
-	setContentOwned(new GUIComponent(), true);
+        setContentOwned(new GUIComponent(), true);
 		centreWithSize(getWidth(), getHeight());
 
 		setVisible(true);
-	}
+        setResizable(false, false);
+}
 
 MainWindow::~MainWindow()
 	{
 		// (the content component will be deleted automatically, so no need to do it here)
+       
 
 	}
 
