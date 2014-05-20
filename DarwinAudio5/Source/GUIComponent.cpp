@@ -450,10 +450,10 @@ void GUIComponent::buttonClicked (Button* buttonThatWasClicked)
 			// THis might not work or create unexpected reuslts when running this algorithm
 			//Directory
             File d(File::getSpecialLocation(File::userMusicDirectory).getChildFile("DarwinAudio"));
-            std::cout << " Thei is the dir:  " << d.getFullPathName() << std::endl;
+            //std::cout << " Thei is the dir:  " << d.getFullPathName() << std::endl;
             
             File f(d.getChildFile("tempfile.wav"));
-            std::cout << " Thei is the dir:  " << f.getFullPathName() << std::endl;
+            //std::cout << " Thei is the dir:  " << f.getFullPathName() << std::endl;
             
             Result result(Result::ok());
             result = f.create();
