@@ -449,15 +449,19 @@ void GUIComponent::buttonClicked (Button* buttonThatWasClicked)
 			//Warning!! - This is an absolute path to where I store the audio on the harddirve
 			// THis might not work or create unexpected reuslts when running this algorithm
 			//Directory
-            File d;
-            d.getSpecialLocation(File::commonApplicationDataDirectory);
+            File d(File::getSpecialLocation(File::userMusicDirectory).getChildFile("DarwinAudio"));
             std::cout << " Thei is the dir:  " << d.getFullPathName() << std::endl;
-
+            
+            File f(d.getChildFile("tempfile.wav"));
+            std::cout << " Thei is the dir:  " << f.getFullPathName() << std::endl;
+            
+            Result result(Result::ok());
+            result = f.create();
+            
+            jassert(result.wasOk());
             //Fix for relative path
-            File e(d.getFullPathName() + "/Darwin/");
-            std::cout << e.getFullPathName() << std::endl;
-            jassert(e.createDirectory());
-            File f(e.getFullPathName() + "/temp.wav");
+            
+           
 			f.deleteFile();
 			FileOutputStream* outputTo = f.createOutputStream();
 			WavAudioFormat* format = new WavAudioFormat();
