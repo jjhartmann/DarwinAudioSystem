@@ -442,8 +442,10 @@ void GUIComponent::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_buttonConvolution] -- add your button handler code here..
 		if (audioFileA.existsAsFile() && audioFileB.existsAsFile()){
-
-			FFTConvolve->convolveAB(audioFileA, audioFileB);
+  
+            
+            
+            FFTConvolve->convolveAB(audioFileA, audioFileB);
 
 			//Write to disk
 			//Warning!! - This is an absolute path to where I store the audio on the harddirve

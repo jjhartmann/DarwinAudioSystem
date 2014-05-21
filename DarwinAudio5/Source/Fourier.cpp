@@ -117,3 +117,79 @@ void CFourier::ComplexFFT(float data[], unsigned long number_of_samples, unsigne
 
 
 }
+
+
+
+//Test for FFT2
+void CFourier::four1(float data[],unsigned long nn,int isign)
+{
+    unsigned long n,mmax,m,j,istep,i;
+    float wtemp,wr,wpr,wpi,wi,theta;
+    float tempr,tempi;
+    
+    
+    //new complex array of size n=2*sample_rate
+	if (vector != nullptr){
+		vector = nullptr;
+	}
+    
+	vector = new float[nn*2];
+    
+    for(int i = 0; i < nn*2; i++){
+        if (i<nn) {
+            vector[i] = data[i];
+        } else {
+            vector[i] = 0;
+        }
+       
+        
+        
+    }
+    
+    
+    
+    n=nn << 1;
+    j=1;
+    for (i=1;i<n;i+=2) {
+        if (j > i) {
+            SWAP(vector[j], vector[i]);
+            SWAP(vector[j+1], vector[i+1]);
+        }
+        m=n >> 1;
+        while (m >= 2 && j > m) {
+            j -= m;
+            m >>= 1;
+        }
+        j += m;
+    }
+    mmax=2;
+    while (n > mmax) {
+        istep=mmax << 1;
+        theta=isign*(6.28318530717959/mmax);
+        wtemp=sin(0.5*theta);
+        wpr = -2.0*wtemp*wtemp;
+        wpi=sin(theta);
+        wr=1.0;
+        wi=0.0;
+        for (m=1;m<mmax;m+=2) {
+            for (i=m;i<=n;i+=istep) {
+                j=i+mmax;
+                tempr=wr*vector[j]-wi*vector[j+1];
+                tempi=wr*vector[j+1]+wi*vector[j];
+                vector[j]=vector[i]-tempr;
+                vector[j+1]=vector[i+1]-tempi;
+                vector[i] += tempr;
+                vector[i+1] += tempi;
+            }
+            wr=(wtemp=wr)*wpr-wi*wpi+wr;
+            wi=wi*wpr+wtemp*wpi+wi;
+        }
+        mmax=istep;
+    }
+}
+
+
+
+
+
+

@@ -34,14 +34,15 @@ AudioConvolutionX::~AudioConvolutionX()
 void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 {
 	
-	formatManager.registerBasicFormats();
 
-	//For FIle A Side
+    formatManager.registerBasicFormats();
+
+	//************************************
+    //For FIle A Side
 	AudioFormatReader *readerA = formatManager.createReaderFor(fileA);
 	bufferA = new AudioSampleBuffer(readerA->numChannels, readerA->lengthInSamples);
 	readerA->read(bufferA, 0, readerA->lengthInSamples, 0, true, true);
-    
-  
+
 
 	if (dataA != nullptr){
 		dataA = nullptr;
@@ -59,9 +60,14 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 	long number_of_samples = readerA->lengthInSamples;
 	short int channel = 1;
 
-	fftA.ComplexFFT(dataA, number_of_samples, sampleRate, 1);
+	//**** NEW FFT ******
+    //fftA.ComplexFFT(dataA, number_of_samples, sampleRate, 1);
+    fftA.four1(dataA, number_of_samples, 1);
 
-
+    
+    
+    
+    
 	// =============================================================================
 	//For FIle B Side
 	AudioFormatReader *readerB = formatManager.createReaderFor(fileB);
@@ -83,32 +89,40 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 	long number_of_samplesB = readerB->lengthInSamples;
 	short int channelB = 1;
 
-	fftB.ComplexFFT(dataB, number_of_samplesB, sampleRateB, 1);
+	//**** NEW FFT *****
+    //fftB.ComplexFFT(dataB, number_of_samplesB, sampleRateB, 1);
+    fftB.four1(dataA, number_of_samples, 1);
 
 
-
+    
+    
 	// ==============================================================================
 	// Multiply the spectrums
-	int maxSizeofConvolve = std::max(bufferB->getNumSamples()*2, bufferA->getNumSamples()*2);
+	int maxSizeofConvolve = std::max(number_of_samples, number_of_samplesB);
 
 	if (dataC != nullptr){
 		dataC = nullptr;
 	}
+    
 	dataC = new float[maxSizeofConvolve];
 	bufferC = new AudioSampleBuffer(1, maxSizeofConvolve);
 
 	MultiplySpecturm(fftA.vector, fftB.vector, maxSizeofConvolve, *bufferC);
 
 	convertBuffertoFloat(*bufferC, dataC);
-	//===================================================================================
+	
+    //===================================================================================
 	// Perform the inverse iFFT
 	CFourier ifftC;
 	bufferConvolve = new AudioSampleBuffer(1, maxSizeofConvolve);
 
 	// the sign integer at the end signify the inverse or non inverse fft algorithm 
 	// as according to the algorithm and book in Numerical Recipes. 
-	ifftC.ComplexFFT(dataC, maxSizeofConvolve, maxSizeofConvolve, -1);
-
+	
+    //*** NEW FFT ****
+    //ifftC.ComplexFFT(dataC, maxSizeofConvolve, maxSizeofConvolve, -1);
+    ifftC.four1(dataC, maxSizeofConvolve, -1);
+    
 	//Convert the float array into a AudioSampleBuffer
 	convertFloattoBuffer(*bufferConvolve, ifftC.vector);
 
@@ -126,8 +140,8 @@ void AudioConvolutionX::convertBuffertoFloat(AudioSampleBuffer const  &buff, flo
 void AudioConvolutionX::MultiplySpecturm(float dataA[], float dataB[], int maxSize, AudioSampleBuffer &data)
 {
 	int n = 0;
-	int sizeA = bufferA->getNumSamples() * 2;
-	int sizeB = bufferB->getNumSamples() * 2;
+	int sizeA = bufferA->getNumSamples();
+	int sizeB = bufferB->getNumSamples();
 
 	for (int i = 0; i < maxSize; i++){
 		if ((i < sizeA) && (i < sizeB)){
@@ -137,11 +151,11 @@ void AudioConvolutionX::MultiplySpecturm(float dataA[], float dataB[], int maxSi
 		}
 		else if ((i < sizeA) && (i >= sizeB))
 		{
-			dataC[i] = dataA[i] * dataB[i - (sizeB*n)];
+			data.setSample(0, i, dataA[i] * dataB[i - (sizeB*n)]);
 		}
 		else if ((i >= sizeA) && (i < sizeB))
 		{
-			dataC[i] = dataA[i - (sizeA*n)] * dataB[i];
+			data.setSample(0, i, dataA[i - (sizeA*n)] * dataB[i]);
 		}
 
 		//For Repeating

@@ -25,6 +25,10 @@ public:
 	// FFT 1D with Channel Selection and Useing Juce Arrays
 	// void CFourier::ComplexFFT(AudioSampleBuffer data, short int channel, unsigned long number_of_samples, unsigned int sample_rate, int sign)
 	void ComplexFFT(float data[], unsigned long number_of_samples, unsigned int sample_rate, int sign);
+    
+    //FFT 2
+    void four1(float data[], unsigned long nn,int isign);
+    
 	//Variables
 	unsigned long int fundamental_frequency;
 	ScopedPointer<float> vector;
