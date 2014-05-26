@@ -121,23 +121,26 @@ void CFourier::ComplexFFT(float data[], unsigned long number_of_samples, unsigne
 
 
 //Test for FFT2
-void CFourier::four1(float data[],unsigned long nn,int isign)
+void CFourier::four1(AudioSampleBuffer *data, unsigned long nn, int isign)
 {
     unsigned long n,mmax,m,j,istep,i;
     float wtemp,wr,wpr,wpi,wi,theta;
     float tempr,tempi;
+    float debugj, debugi;
     
+    
+    n=nn << 1;
     
     //new complex array of size n=2*sample_rate
 	if (vector != nullptr){
 		vector = nullptr;
 	}
     
-	vector = new float[nn*2];
+	vector = new float[n];
     
-    for(int i = 0; i < nn*2; i++){
+    for(int i = 0; i < n; i++){
         if (i<nn) {
-            vector[i] = data[i];
+            vector[i] = data->getSample(0, i);
         } else {
             vector[i] = 0;
         }
@@ -147,8 +150,8 @@ void CFourier::four1(float data[],unsigned long nn,int isign)
     }
     
     
+    // Vector arrary scramble with inverse bit mapping
     
-    n=nn << 1;
     j=1;
     for (i=1;i<n;i+=2) {
         if (j > i) {
@@ -163,6 +166,9 @@ void CFourier::four1(float data[],unsigned long nn,int isign)
         j += m;
     }
     mmax=2;
+    
+    
+    // Danielson - Lanczo Loop Algorithm.
     while (n > mmax) {
         istep=mmax << 1;
         theta=isign*(6.28318530717959/mmax);
@@ -174,12 +180,25 @@ void CFourier::four1(float data[],unsigned long nn,int isign)
         for (m=1;m<mmax;m+=2) {
             for (i=m;i<=n;i+=istep) {
                 j=i+mmax;
+               
+                //TEMP: Fix
+				if ((j < n) && (i < n)){
                 tempr=wr*vector[j]-wi*vector[j+1];
                 tempi=wr*vector[j+1]+wi*vector[j];
                 vector[j]=vector[i]-tempr;
+                
+                //Debug inster
+                debugj = vector[j];
+                
                 vector[j+1]=vector[i+1]-tempi;
                 vector[i] += tempr;
                 vector[i+1] += tempi;
+                
+                //Debug inster
+                debugi = vector[i];
+                
+                }//END TEMP FIX
+                
             }
             wr=(wtemp=wr)*wpr-wi*wpi+wr;
             wi=wi*wpr+wtemp*wpi+wi;

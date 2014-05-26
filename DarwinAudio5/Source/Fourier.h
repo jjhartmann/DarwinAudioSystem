@@ -27,7 +27,7 @@ public:
 	void ComplexFFT(float data[], unsigned long number_of_samples, unsigned int sample_rate, int sign);
     
     //FFT 2
-    void four1(float data[], unsigned long nn,int isign);
+    void four1(AudioSampleBuffer *data, unsigned long nn,int isign);
     
 	//Variables
 	unsigned long int fundamental_frequency;

@@ -62,7 +62,7 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 
 	//**** NEW FFT ******
     //fftA.ComplexFFT(dataA, number_of_samples, sampleRate, 1);
-    fftA.four1(dataA, number_of_samples, 1);
+    fftA.four1(bufferA, number_of_samples, 1);
 
     
     
@@ -91,7 +91,7 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 
 	//**** NEW FFT *****
     //fftB.ComplexFFT(dataB, number_of_samplesB, sampleRateB, 1);
-    fftB.four1(dataA, number_of_samples, 1);
+    fftB.four1(bufferB, number_of_samples, 1);
 
 
     
@@ -121,7 +121,7 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 	
     //*** NEW FFT ****
     //ifftC.ComplexFFT(dataC, maxSizeofConvolve, maxSizeofConvolve, -1);
-    ifftC.four1(dataC, maxSizeofConvolve, -1);
+    ifftC.four1(bufferC, maxSizeofConvolve, -1);
     
 	//Convert the float array into a AudioSampleBuffer
 	convertFloattoBuffer(*bufferConvolve, ifftC.vector);
@@ -130,9 +130,10 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 
 void AudioConvolutionX::convertBuffertoFloat(AudioSampleBuffer const  &buff, float data[])
 {
-	
+    float debugi;
 	for (int i = 0; i < buff.getNumSamples(); i++){
 		data[i] = buff.getSample(0, i);
+        debugi = data[i];
 	}
 	
 }
