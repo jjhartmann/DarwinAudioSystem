@@ -15,36 +15,36 @@
 
 
 MainWindow::MainWindow()
-		: DocumentWindow(	"Darwin Audio App",
-							Colours::lightgrey,
-							DocumentWindow::allButtons,
-							true)
-	{
-		// Create an instance of our main content component, and add it 
-		// to our window.
+        : DocumentWindow(	"Darwin Audio App",
+                            Colours::lightgrey,
+                            DocumentWindow::allButtons,
+                            true)
+    {
+        // Create an instance of our main content component, and add it 
+        // to our window.
 
         setContentOwned(new GUIComponent(), true);
-		centreWithSize(getWidth(), getHeight());
+        centreWithSize(getWidth(), getHeight());
 
-		setVisible(true);
+        setVisible(true);
         setResizable(false, false);
 }
 
 MainWindow::~MainWindow()
-	{
-		// (the content component will be deleted automatically, so no need to do it here)
+    {
+        // (the content component will be deleted automatically, so no need to do it here)
        
 
-	}
+    }
 
-	//==============================================================================
+    //==============================================================================
 void MainWindow::closeButtonPressed()
-	{
-		// When the user presses the close button, we'll tell the app to quit. This 
-		// window will be deleted by our shutdown() method
-		// 
-		JUCEApplication::getInstance()->systemRequestedQuit();
-	}
+    {
+        // When the user presses the close button, we'll tell the app to quit. This 
+        // window will be deleted by our shutdown() method
+        // 
+        JUCEApplication::getInstance()->systemRequestedQuit();
+    }
 
 
 

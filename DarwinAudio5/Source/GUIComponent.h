@@ -47,7 +47,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	static AudioDeviceManager& getSharedAudioManager();
+    static AudioDeviceManager& getSharedAudioManager();
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -77,21 +77,21 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	ScopedPointer<APlay> playAudioA;
-	ScopedPointer<APlay> playAudioB;
-	ScopedPointer<APlay> playAudioConvolve;
+    ScopedPointer<APlay> playAudioA;
+    ScopedPointer<APlay> playAudioB;
+    ScopedPointer<APlay> playAudioConvolve;
 
-	//Files A and B
-	File audioFileA;
-	File audioFileB;
-	
+    //Files A and B
+    File audioFileA;
+    File audioFileB;
+    
 
-	//For the FFT
-	ScopedPointer<AudioConvolutionX> FFTConvolve;
+    //For the FFT
+    ScopedPointer<AudioConvolutionX> FFTConvolve;
 
-	//ScopedPointer<AThumb> thumbnailA;
-	//AudioTransportSource audioTransport;
-	//AudioFormatManager formatManager;
+    //ScopedPointer<AThumb> thumbnailA;
+    //AudioTransportSource audioTransport;
+    //AudioFormatManager formatManager;
     //[/UserVariables]
 
     //==============================================================================

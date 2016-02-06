@@ -19,36 +19,36 @@
 
 
 class AThumb : 
-	public Component,
-	public ChangeListener,
-	private Timer,
-	private ScrollBar::Listener
+    public Component,
+    public ChangeListener,
+    private Timer,
+    private ScrollBar::Listener
 
 {
 public:
-	AThumb(AudioFormatManager& formatManager, AudioTransportSource& transportSource_);
-	~AThumb();
-	void setFile(const File& aFile);
-	void setRange(Range<double> nRange);
-	void paint(Graphics& g) override;
-	void scrollBarMoved(ScrollBar* scrollbarMoved, double newRStart) override;
-	void resized() override;
-	void changeListenerCallback(ChangeBroadcaster*) override;
+    AThumb(AudioFormatManager& formatManager, AudioTransportSource& transportSource_);
+    ~AThumb();
+    void setFile(const File& aFile);
+    void setRange(Range<double> nRange);
+    void paint(Graphics& g) override;
+    void scrollBarMoved(ScrollBar* scrollbarMoved, double newRStart) override;
+    void resized() override;
+    void changeListenerCallback(ChangeBroadcaster*) override;
 
 
 private:
-	AudioTransportSource& transportSouce;
-	ScrollBar scrollbar;
+    AudioTransportSource& transportSouce;
+    ScrollBar scrollbar;
 
-	AudioThumbnailCache thumbCache;
-	AudioThumbnail thumbnail;
-	Range<double> viewableR;
-	DrawableRectangle currentPositionMark;
+    AudioThumbnailCache thumbCache;
+    AudioThumbnail thumbnail;
+    Range<double> viewableR;
+    DrawableRectangle currentPositionMark;
 
 
 
-	void timerCallback() override;
-	bool canMoveTransport() const noexcept;
-	void updateCursorPostion();
-	float timeToHere(const float x) const;
+    void timerCallback() override;
+    bool canMoveTransport() const noexcept;
+    void updateCursorPostion();
+    float timeToHere(const float x) const;
 };

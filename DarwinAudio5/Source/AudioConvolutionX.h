@@ -19,28 +19,28 @@
 class AudioConvolutionX
 {
 public:
-	AudioConvolutionX();
-	~AudioConvolutionX();
+    AudioConvolutionX();
+    ~AudioConvolutionX();
 
-	void convolveAB(File &fileA, File &fileB);
+    void convolveAB(File &fileA, File &fileB);
 
-	//Public Var
-	ScopedPointer<AudioSampleBuffer> bufferConvolve;
-	
+    //Public Var
+    ScopedPointer<AudioSampleBuffer> bufferConvolve;
+    
 private:
-	AudioFormatManager formatManager;
-	ScopedPointer<AudioSampleBuffer> bufferA;
-	ScopedPointer<AudioSampleBuffer> bufferB;
+    AudioFormatManager formatManager;
+    ScopedPointer<AudioSampleBuffer> bufferA;
+    ScopedPointer<AudioSampleBuffer> bufferB;
 
-	void convertBuffertoFloat(AudioSampleBuffer const &buff, float data[]);
-	ScopedPointer<float> dataA;
-	ScopedPointer<float> dataB;
+    void convertBuffertoFloat(AudioSampleBuffer const &buff, float data[]);
+    ScopedPointer<float> dataA;
+    ScopedPointer<float> dataB;
 
-	void MultiplySpecturm(float dataA[], float dataB[], int maxSize, AudioSampleBuffer &data);
-	ScopedPointer<float> dataC;
-	ScopedPointer<AudioSampleBuffer> bufferC;
+    void MultiplySpecturm(float dataA[], float dataB[], int maxSize, AudioSampleBuffer &data);
+    ScopedPointer<float> dataC;
+    ScopedPointer<AudioSampleBuffer> bufferC;
 
-	void convertFloattoBuffer(AudioSampleBuffer &buff, float data[]);
+    void convertFloattoBuffer(AudioSampleBuffer &buff, float data[]);
 
 
 };
