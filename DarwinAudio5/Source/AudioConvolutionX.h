@@ -25,6 +25,7 @@ public:
     ~AudioConvolutionX();
 
     void convolveAB(File &fileA, File &fileB);
+    void convolveDirect();
 
     //Public Var
     ScopedPointer<AudioSampleBuffer> bufferConvolve;

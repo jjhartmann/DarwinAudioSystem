@@ -159,8 +159,12 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Convolve Audio Slow way. 
-void convolveDirect()
-{}
+void AudioConvolutionX::convolveDirect()
+{
+    
+
+
+}
 
 
 
