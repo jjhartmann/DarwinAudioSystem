@@ -21,6 +21,7 @@
 //[/Headers]
 
 #include "GUIComponent.h"
+#include <string>
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
@@ -469,9 +470,10 @@ void GUIComponent::buttonClicked (Button* buttonThatWasClicked)
 			FileOutputStream* outputTo = f.createOutputStream();
 			WavAudioFormat* format = new WavAudioFormat();
 			AudioFormatWriter* writer = format->createWriterFor(outputTo, 44100, 1, 16, NULL, 0);
-			writer->writeFromAudioSampleBuffer(*FFTConvolve->bufferConvolve, 0, FFTConvolve->bufferConvolve->getNumSamples());
+			writer->writeFromAudioSampleBuffer(*conv.bufferConvolve, 0, conv.bufferConvolve->getNumSamples());
+            writer->
 
-			//playAudioConvolve->setFile(f);
+			playAudioConvolve->setFile(f);
 
 		}
 
