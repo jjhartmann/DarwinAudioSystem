@@ -56,13 +56,13 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
     //Convert to Real and Imaginary -> then multiply there spectrums
     CFourier fftA;
 
-    long sampleRate = readerA->lengthInSamples;
+    long sampleRate = readerA->sampleRate;
     long number_of_samples = readerA->lengthInSamples;
     short int channel = 1;
 
     //**** NEW FFT ******
     //fftA.ComplexFFT(dataA, number_of_samples, sampleRate, 1);
-    fftA.four1(bufferA, number_of_samples, 1);
+    fftA.four1(bufferA, sampleRate, 1);
 
     
     
@@ -85,13 +85,13 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
     //Convert to Real and Imaginary -> then multiply there spectrums
     CFourier fftB;
 
-    long sampleRateB = readerB->lengthInSamples;
+    long sampleRateB = readerB->sampleRate;
     long number_of_samplesB = readerB->lengthInSamples;
     short int channelB = 1;
 
     //**** NEW FFT *****
     //fftB.ComplexFFT(dataB, number_of_samplesB, sampleRateB, 1);
-    fftB.four1(bufferB, number_of_samples, 1);
+    fftB.four1(bufferB, sampleRateB, 1);
 
 
     
