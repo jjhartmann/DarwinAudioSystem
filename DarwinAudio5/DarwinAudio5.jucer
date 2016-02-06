@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="sbT2qE" name="DarwinAudio5" projectType="guiapp" version="1.0.0"
               bundleIdentifier="com.yourcompany.DarwinAudio5" includeBinaryInAppConfig="1"
-              jucerVersion="3.1.0">
+              jucerVersion="4.1.0">
   <MAINGROUP id="dJaW2U" name="DarwinAudio5">
     <GROUP id="{DD0A492C-1285-2FCB-B95F-518A23E7BE8A}" name="Source">
       <FILE id="dYHxZt" name="Fourier.cpp" compile="1" resource="0" file="Source/Fourier.cpp"/>

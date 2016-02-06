@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -44,6 +44,9 @@ public:
         @param source           the source that's invoking the event
         @param position         the position of the mouse, relative to the component that is passed-in
         @param modifiers        the key modifiers at the time of the event
+        @param pressure         the pressure of the touch or stylus, in the range 0 to 1. Devices that
+                                do not support force information may return 0.0, 1.0, or a negative value,
+                                depending on the platform
         @param eventComponent   the component that the mouse event applies to
         @param originator       the component that originally received the event
         @param eventTime        the time the event happened
@@ -57,12 +60,13 @@ public:
         @param mouseWasDragged  whether the mouse has been dragged significantly since the previous mouse-down
     */
     MouseEvent (MouseInputSource source,
-                Point<int> position,
+                Point<float> position,
                 ModifierKeys modifiers,
+                float pressure,
                 Component* eventComponent,
                 Component* originator,
                 Time eventTime,
-                Point<int> mouseDownPos,
+                Point<float> mouseDownPos,
                 Time mouseDownTime,
                 int numberOfClicks,
                 bool mouseWasDragged) noexcept;
@@ -71,10 +75,22 @@ public:
     ~MouseEvent() noexcept;
 
     //==============================================================================
+    /** The position of the mouse when the event occurred.
+
+        This value is relative to the top-left of the component to which the
+        event applies (as indicated by the MouseEvent::eventComponent field).
+
+        This is a more accurate floating-point version of the position returned by
+        getPosition() and the integer x and y member variables.
+    */
+    const Point<float> position;
+
     /** The x-position of the mouse when the event occurred.
 
         This value is relative to the top-left of the component to which the
         event applies (as indicated by the MouseEvent::eventComponent field).
+
+        For a floating-point coordinate, see MouseEvent::position
     */
     const int x;
 
@@ -82,6 +98,8 @@ public:
 
         This value is relative to the top-left of the component to which the
         event applies (as indicated by the MouseEvent::eventComponent field).
+
+        For a floating-point coordinate, see MouseEvent::position
     */
     const int y;
 
@@ -94,6 +112,13 @@ public:
         just before they were released, so that you can tell which button they let go of.
     */
     const ModifierKeys mods;
+
+    /** The pressure of the touch or stylus for this event.
+        The range is 0 (soft) to 1 (hard).
+        If the input device doesn't provide any pressure data, it may return a negative
+        value here, or 0.0 or 1.0, depending on the platform.
+    */
+    float pressure;
 
     /** The component that this event applies to.
 
@@ -130,25 +155,19 @@ public:
 
     //==============================================================================
     /** Returns the x coordinate of the last place that a mouse was pressed.
-
         The coordinate is relative to the component specified in MouseEvent::component.
-
         @see getDistanceFromDragStart, getDistanceFromDragStartX, mouseWasClicked
     */
     int getMouseDownX() const noexcept;
 
     /** Returns the y coordinate of the last place that a mouse was pressed.
-
         The coordinate is relative to the component specified in MouseEvent::component.
-
         @see getDistanceFromDragStart, getDistanceFromDragStartX, mouseWasClicked
     */
     int getMouseDownY() const noexcept;
 
     /** Returns the coordinates of the last place that a mouse was pressed.
-
         The coordinates are relative to the component specified in MouseEvent::component.
-
         @see getDistanceFromDragStart, getDistanceFromDragStartX, mouseWasClicked
     */
     Point<int> getMouseDownPosition() const noexcept;
@@ -216,11 +235,16 @@ public:
     */
     int getLengthOfMousePress() const noexcept;
 
+    /** Returns true if the pressure value for this event is meaningful. */
+    bool isPressureValid() const noexcept;
+
     //==============================================================================
     /** The position of the mouse when the event occurred.
 
         This position is relative to the top-left of the component to which the
         event applies (as indicated by the MouseEvent::eventComponent field).
+
+        For a floating-point position, see MouseEvent::position
     */
     Point<int> getPosition() const noexcept;
 
@@ -273,6 +297,12 @@ public:
         All other members of the event object are the same, but the x and y are
         replaced with these new values.
     */
+    MouseEvent withNewPosition (Point<float> newPosition) const noexcept;
+
+    /** Creates a copy of this event with a different position.
+        All other members of the event object are the same, but the x and y are
+        replaced with these new values.
+    */
     MouseEvent withNewPosition (Point<int> newPosition) const noexcept;
 
     //==============================================================================
@@ -297,7 +327,7 @@ public:
 
 private:
     //==============================================================================
-    const Point<int> mouseDownPos;
+    const Point<float> mouseDownPos;
     const uint8 numberOfClicks, wasMovedSinceMouseDown;
 
     MouseEvent& operator= (const MouseEvent&);
@@ -338,6 +368,10 @@ struct MouseWheelDetails
 
     /** If true, then the wheel has continuous, un-stepped motion. */
     bool isSmooth;
+
+    /** If true, then this event is part of the intertial momentum phase that follows
+        the wheel being released. */
+    bool isInertial;
 };
 
 

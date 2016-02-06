@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -22,75 +22,18 @@
   ==============================================================================
 */
 
-struct SharedValueSourceUpdater  : private AsyncUpdater
-{
-public:
-    SharedValueSourceUpdater() {}
-
-    void update (Value::ValueSource* const source)
-    {
-        {
-            const ScopedLock sl (lock);
-            sourcesNeedingUpdate.addIfNotAlreadyThere (source);
-        }
-
-        triggerAsyncUpdate();
-    }
-
-    void valueDeleted (Value::ValueSource* const source)
-    {
-        const ScopedLock sl (lock);
-        sourcesNeedingUpdate.removeFirstMatchingValue (source);
-    }
-
-private:
-    Array<Value::ValueSource*> sourcesNeedingUpdate;
-    CriticalSection lock;
-
-    void handleAsyncUpdate() override
-    {
-        SharedResourcePointer<SharedValueSourceUpdater> localRef;
-
-        int maxCallbacks = sourcesNeedingUpdate.size();
-
-        for (;;)
-        {
-            ReferenceCountedObjectPtr<Value::ValueSource> toUpdate;
-
-            {
-                const ScopedLock sl (lock);
-                toUpdate = sourcesNeedingUpdate.remove (0);
-            }
-
-            if (toUpdate == nullptr)
-                break;
-
-            toUpdate->sendChangeMessage (true);
-
-            if (--maxCallbacks <= 0)
-            {
-                triggerAsyncUpdate();
-                break;
-            }
-        }
-    }
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SharedValueSourceUpdater)
-};
-
-struct Value::ValueSource::Pimpl
-{
-    SharedResourcePointer<SharedValueSourceUpdater> updater;
-};
-
 Value::ValueSource::ValueSource()
 {
 }
 
 Value::ValueSource::~ValueSource()
 {
-    if (pimpl != nullptr)
-        pimpl->updater->valueDeleted (this);
+    cancelPendingUpdate();
+}
+
+void Value::ValueSource::handleAsyncUpdate()
+{
+    sendChangeMessage (true);
 }
 
 void Value::ValueSource::sendChangeMessage (const bool synchronous)
@@ -103,16 +46,15 @@ void Value::ValueSource::sendChangeMessage (const bool synchronous)
         {
             const ReferenceCountedObjectPtr<ValueSource> localRef (this);
 
+            cancelPendingUpdate();
+
             for (int i = numListeners; --i >= 0;)
                 if (Value* const v = valuesWithListeners[i])
                     v->callListeners();
         }
         else
         {
-            if (pimpl == nullptr)
-                pimpl = new Pimpl();
-
-            pimpl->updater->update (this);
+            triggerAsyncUpdate();
         }
     }
 }
@@ -130,12 +72,12 @@ public:
     {
     }
 
-    var getValue() const
+    var getValue() const override
     {
         return value;
     }
 
-    void setValue (const var& newValue)
+    void setValue (const var& newValue) override
     {
         if (! newValue.equalsWithSameType (value))
         {
@@ -152,41 +94,41 @@ private:
 
 
 //==============================================================================
-Value::Value()
-    : value (new SimpleValueSource())
+Value::Value()  : value (new SimpleValueSource())
 {
 }
 
-Value::Value (ValueSource* const v)
-    : value (v)
+Value::Value (ValueSource* const v)  : value (v)
 {
     jassert (v != nullptr);
 }
 
-Value::Value (const var& initialValue)
-    : value (new SimpleValueSource (initialValue))
+Value::Value (const var& initialValue)  : value (new SimpleValueSource (initialValue))
 {
 }
 
-Value::Value (const Value& other)
-    : value (other.value)
+Value::Value (const Value& other)  : value (other.value)
 {
-}
-
-Value& Value::operator= (const Value& other)
-{
-    value = other.value;
-    return *this;
 }
 
 #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 Value::Value (Value&& other) noexcept
-    : value (static_cast<ReferenceCountedObjectPtr<ValueSource>&&> (other.value))
 {
+    // moving a Value with listeners will lose those listeners, which
+    // probably isn't what you wanted to happen!
+    jassert (other.listeners.size() == 0);
+
+    other.removeFromListenerList();
+    value = static_cast<ReferenceCountedObjectPtr<ValueSource>&&> (other.value);
 }
 
 Value& Value::operator= (Value&& other) noexcept
 {
+    // moving a Value with listeners will lose those listeners, which
+    // probably isn't what you wanted to happen!
+    jassert (other.listeners.size() == 0);
+
+    other.removeFromListenerList();
     value = static_cast<ReferenceCountedObjectPtr<ValueSource>&&> (other.value);
     return *this;
 }
@@ -194,7 +136,12 @@ Value& Value::operator= (Value&& other) noexcept
 
 Value::~Value()
 {
-    if (listeners.size() > 0)
+    removeFromListenerList();
+}
+
+void Value::removeFromListenerList()
+{
+    if (listeners.size() > 0 && value != nullptr) // may be nullptr after a move operation
         value->valuesWithListeners.removeValue (this);
 }
 
