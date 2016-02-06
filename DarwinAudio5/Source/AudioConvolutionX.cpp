@@ -9,10 +9,38 @@
 */
 
 #include "AudioConvolutionX.h"
+AudioConvolutionX::AudioConvolutionX() :
+    dataB(nullptr),
+    dataA(nullptr),
+    dataC(nullptr)
+{
+}
 
-AudioConvolutionX::AudioConvolutionX()
+AudioConvolutionX::AudioConvolutionX(File &fileA, File &fileB)
 {	
-    
+
+    formatManager.registerBasicFormats();
+
+    //************************************
+    //For FIle A Side
+    AudioFormatReader *readerA = formatManager.createReaderFor(fileA);
+    if (readerA != nullptr)
+    {
+        bufferA = new AudioSampleBuffer(readerA->numChannels, readerA->lengthInSamples);
+        readerA->read(bufferA, 0, readerA->lengthInSamples, 0, true, true);
+        
+    }
+    // =============================================================================
+    //For FIle B Side
+    AudioFormatReader *readerB = formatManager.createReaderFor(fileB);
+    if (readerB != nullptr)
+    {
+        bufferB = new AudioSampleBuffer(readerB->numChannels, readerB->lengthInSamples);
+        readerB->read(bufferB, 0, readerB->lengthInSamples, 0, true, true);
+    }
+
+    // Create output buffer
+    bufferConvolve = new AudioSampleBuffer(1, readerA->lengthInSamples + readerB->lengthInSamples);
 }
 
 AudioConvolutionX::~AudioConvolutionX()
@@ -127,6 +155,14 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
     convertFloattoBuffer(*bufferConvolve, ifftC.vector);
 
 }
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Convolve Audio Slow way. 
+void convolveDirect()
+{}
+
+
 
 void AudioConvolutionX::convertBuffertoFloat(AudioSampleBuffer const  &buff, float data[])
 {

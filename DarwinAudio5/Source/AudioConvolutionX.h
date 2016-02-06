@@ -20,6 +20,8 @@ class AudioConvolutionX
 {
 public:
     AudioConvolutionX();
+    AudioConvolutionX(File &fileA, File &fileB);
+
     ~AudioConvolutionX();
 
     void convolveAB(File &fileA, File &fileB);
