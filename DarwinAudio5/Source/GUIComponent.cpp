@@ -445,7 +445,8 @@ void GUIComponent::buttonClicked (Button* buttonThatWasClicked)
   
             
             
-            FFTConvolve->convolveAB(audioFileA, audioFileB);
+            AudioConvolutionX conv(audioFileA, audioFileB);
+            conv.convolveDirect();
 
 			//Write to disk
 			//Warning!! - This is an absolute path to where I store the audio on the harddirve
