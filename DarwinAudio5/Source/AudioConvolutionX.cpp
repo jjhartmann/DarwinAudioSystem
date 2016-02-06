@@ -9,6 +9,11 @@
 */
 
 #include "AudioConvolutionX.h"
+
+#include<algorithm>
+
+using namespace std;
+
 AudioConvolutionX::AudioConvolutionX() :
     dataB(nullptr),
     dataA(nullptr),
@@ -40,7 +45,7 @@ AudioConvolutionX::AudioConvolutionX(File &fileA, File &fileB)
     }
 
     // Create output buffer
-    bufferConvolve = new AudioSampleBuffer(1, readerA->lengthInSamples + readerB->lengthInSamples);
+    bufferConvolve = new AudioSampleBuffer(1, bufferB->getNumSamples() + bufferA->getNumSamples());
 }
 
 AudioConvolutionX::~AudioConvolutionX()
@@ -161,8 +166,31 @@ void AudioConvolutionX::convolveAB(File &fileA, File &fileB)
 // Convolve Audio Slow way. 
 void AudioConvolutionX::convolveDirect()
 {
-    
+    auto itrA = bufferA->getReadPointer(0);
+    auto itrB = bufferB->getReadPointer(0);
+    auto itrC = bufferConvolve->getWritePointer(0);
 
+    int samplesA = bufferA->getNumSamples();
+    int samplesB = bufferB->getNumSamples();
+    int samplesC = bufferConvolve->getNumSamples();
+
+    for (int i = 0; i < samplesC; ++i)
+    {
+        float tmp = 0.0;
+        for (int j = 0; j <= min(samplesA - 1, i); ++j)
+        {
+            // Reverse Convolving array
+            for (int k = samplesB - 1; k >= max(0, samplesB - i); --k)
+            {
+                tmp += (bufferB->getSample(0, k) * bufferA->getSample(0, j)) / min(i + 1, min(samplesA, samplesB));
+                itrB++;
+            }
+            itrA++;
+        }
+
+        *itrC = tmp;
+        itrC++;
+    }
 
 }
 
