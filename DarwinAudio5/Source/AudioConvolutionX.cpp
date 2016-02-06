@@ -177,15 +177,11 @@ void AudioConvolutionX::convolveDirect()
     for (int i = 0; i < samplesC; ++i)
     {
         float tmp = 0.0;
-        for (int j = 0; j <= min(samplesA - 1, i); ++j)
+        for (int j = 0, k = samplesB - 1; j <= min(samplesA - 1, i), k >= max(0, (samplesB - i) - 1); ++j, --k)
         {
-            // Reverse Convolving array
-            for (int k = samplesB - 1; k >= max(0, samplesB - i); --k)
-            {
-                tmp += (bufferB->getSample(0, k) * bufferA->getSample(0, j));
-                itrB++;
-            }
-            itrA++;
+             tmp += (bufferB->getSample(0, k) * bufferA->getSample(0, j));
+             itrB++;
+             itrA++;
         }
 
         *itrC = tmp;
